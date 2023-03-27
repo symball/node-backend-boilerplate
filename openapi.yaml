@@ -1,0 +1,248 @@
+openapi: 3.0.0
+tags:
+  - name: users
+    description: users API
+info:
+  title: Backend BoilerPlate
+  description: An example NodeJS express project used for bootstrapping services
+  version: 1.0.0
+  contact:
+    name: Simon Ball
+    url: 'https://simonball.me'
+    email: contact@simonball.me
+servers:
+  - url: http://localhost:3000
+    description: Local Development
+paths:
+  /signup:
+    post:
+      tags:
+        - users
+      summary: Register a new User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBasic'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    default: signup
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+  /login:
+    post:
+      tags:
+        - users
+      summary: Log user in and retrieve JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBasic'
+      responses:
+        '200':
+          description: OK
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: Authorization=abcde12345; HttpOnly; Max-Age=888888
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    default: login
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+  /logout:
+    get:
+      security:
+        - cookieAuth: [ ]
+      tags:
+        - users
+      summary: Log user in and retrieve JWT token
+      responses:
+        '200':
+          description: OK
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: Authorization=; Max-Age=888888
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    default: logout
+
+  /users:
+    get:
+      security:
+        - cookieAuth: []
+      tags:
+        - users
+      summary: Find All Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    default: findAll
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      security:
+        - cookieAuth: [ ]
+      tags:
+        - users
+      summary: Add User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBasic'
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+        '409':
+          description: Conflict
+        '500':
+          description: Server Error
+
+  '/users/{UserId}':
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    get:
+      security:
+        - cookieAuth: [ ]
+      tags:
+        - users
+      summary: Find User By Id
+
+      responses:
+        '200':
+          description: OK
+        '409':
+          description: Conflict
+        '500':
+          description: Server Error
+    put:
+      security:
+        - cookieAuth: [ ]
+      tags:
+        - users
+      summary: Update User By Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBasic'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '409':
+          description: Conflict
+        '500':
+          description: Server Error
+    delete:
+      security:
+        - cookieAuth: [ ]
+      tags:
+        - users
+      summary: Delete User By Id
+      responses:
+        '200':
+          description: OK
+        '409':
+          description: Conflict
+        '500':
+          description: Server Error
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: Authorization
+  schemas:
+    UserBasic:
+      title: UserBasic
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    User:
+      title: User
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID4
+        email:
+          type: string
+          description: Email Address
+        password:
+          type: string
+  responses:
+    ServerError:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Something went wrong
+        application/xml:
+          schema:
+            type: object
+            properties: {}
+  parameters:
+    UserId:
+      name: UserId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: 6115d6af-871f-484d-929d-ea785c316afe
+        pattern: '/^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i'
+      description: User ID (UUIDV4)

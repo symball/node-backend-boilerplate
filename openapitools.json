@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/@openapitools/openapi-generator-cli/config.schema.json",
+  "generator-cli": {
+    "version": "6.2.1",
+    "supportsES6": true,
+    "withSeparateModelsAndApi": true,
+    "generators": {
+      "frontend-sdk": {
+        "generatorName": "typescript-fetch",
+        "output": "#{cwd}/autogen/api",
+        "glob": "openapi.{json,yaml}"
+      }
+    }
+  }
+}
